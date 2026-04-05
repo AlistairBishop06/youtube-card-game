@@ -287,6 +287,34 @@ code {
   background: rgba(255, 255, 255, 0.06);
 }
 
+.btn--danger {
+  background: #7f1d1d;
+  border-color: #991b1b;
+  color: #fecaca;
+}
+
+.btn--danger:hover {
+  background: #991b1b;
+}
+
+.panel--danger {
+  border-color: rgba(248, 113, 113, 0.35);
+}
+
+.account-main {
+  gap: 1.25rem;
+}
+
+.account-form {
+  max-width: 360px;
+}
+
+.ok-msg {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  color: var(--accent);
+}
+
 /* --- Loading --- */
 /* `hidden` must win over display:flex (otherwise spinner stays visible forever) */
 .loading[hidden],

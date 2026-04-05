@@ -1,3 +1,3 @@
 import { initNav } from "./nav.js";
 
-initNav();
+await initNav();

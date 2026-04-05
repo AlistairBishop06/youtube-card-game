@@ -1,0 +1,6 @@
+node_modules/
+data/gacha.db
+data/gacha.db-shm
+data/gacha.db-wal
+data/sessions.db
+data/sessions/

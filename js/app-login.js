@@ -1,38 +1,54 @@
-import { setSession, getCurrentUser } from "./auth.js";
+import { refreshSession, getCurrentUser } from "./auth.js";
 import { initNav } from "./nav.js";
+import { api } from "./api.js";
 
-const ALLOWED_NEXT = new Set(["pull.html", "inventory.html", "index.html"]);
+const ALLOWED_NEXT = new Set([
+  "pull.html",
+  "inventory.html",
+  "index.html",
+  "account.html",
+]);
 
 function safeNext(raw) {
   if (!raw || typeof raw !== "string") return "pull.html";
   if (raw.includes("..") || raw.includes("//")) return "pull.html";
-  const noHash = raw.split("#")[0];
-  const leaf = noHash.split("/").pop()?.split("?")[0] || "";
+  const leaf = raw.split("#")[0].split("/").pop()?.split("?")[0] || "";
   if (!ALLOWED_NEXT.has(leaf)) return "pull.html";
   return leaf;
 }
 
 const form = document.getElementById("loginForm");
-const input = document.getElementById("username");
+const userEl = document.getElementById("username");
+const passEl = document.getElementById("password");
 const err = document.getElementById("loginError");
 
-initNav();
+await initNav();
 
+await refreshSession();
 if (getCurrentUser()) {
   const params = new URLSearchParams(location.search);
   window.location.href = safeNext(params.get("next"));
 }
 
-form?.addEventListener("submit", (e) => {
+form?.addEventListener("submit", async (e) => {
   e.preventDefault();
   err.hidden = true;
-  const name = String(input?.value || "").trim();
-  if (!name) {
-    err.textContent = "Enter a display name.";
+  const username = String(userEl?.value || "").trim();
+  const password = String(passEl?.value || "");
+  if (!username || !password) {
+    err.textContent = "Enter username and password.";
     err.hidden = false;
     return;
   }
-  setSession(name);
-  const params = new URLSearchParams(location.search);
-  window.location.href = safeNext(params.get("next"));
+  try {
+    const data = await api("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+    });
+    const params = new URLSearchParams(location.search);
+    window.location.href = safeNext(params.get("next"));
+  } catch (ex) {
+    err.textContent = ex instanceof Error ? ex.message : String(ex);
+    err.hidden = false;
+  }
 });

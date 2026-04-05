@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Log in — Video Gacha</title>
+    <title>Register — Video Gacha</title>
     <link rel="stylesheet" href="css/styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,13 +17,15 @@
       <nav id="siteNav" class="site-nav" aria-label="Main"></nav>
 
       <header class="header">
-        <h1 class="header__title">Log in</h1>
-        <p class="header__tagline">Use the account you created on this server.</p>
+        <h1 class="header__title">Create account</h1>
+        <p class="header__tagline">
+          Username: 3–32 characters (letters, numbers, underscore). Password: at least 8 characters.
+        </p>
       </header>
 
       <main class="main">
         <section class="panel">
-          <form id="loginForm" class="login-form">
+          <form id="registerForm" class="login-form">
             <label class="login-form__label" for="username">Username</label>
             <input
               class="login-form__input"
@@ -40,19 +42,30 @@
               id="password"
               name="password"
               type="password"
-              autocomplete="current-password"
+              autocomplete="new-password"
+              minlength="8"
               required
             />
-            <button type="submit" class="btn btn--pull login-form__submit">Log in</button>
+            <label class="login-form__label" for="password2">Confirm password</label>
+            <input
+              class="login-form__input"
+              id="password2"
+              name="password2"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+              required
+            />
+            <button type="submit" class="btn btn--pull login-form__submit">Register</button>
           </form>
-          <p class="error login-form__error" id="loginError" role="alert" hidden></p>
+          <p class="error login-form__error" id="registerError" role="alert" hidden></p>
           <p class="panel__text" style="margin-top: 1rem">
-            No account? <a href="register.html">Register</a>
+            Already have an account? <a href="login.html">Log in</a>
           </p>
         </section>
       </main>
     </div>
 
-    <script type="module" src="js/app-login.js"></script>
+    <script type="module" src="js/app-register.js"></script>
   </body>
 </html>

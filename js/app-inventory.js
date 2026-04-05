@@ -1,9 +1,11 @@
-import { loadCollection, totalCardCount } from "./storage.js";
 import { RARITY_META } from "./rarity.js";
-import { requireLogin } from "./auth.js";
+import { refreshSession, requireLogin } from "./auth.js";
 import { initNav } from "./nav.js";
 import { buildCardElement, wireModal } from "./cardUi.js";
+import { api } from "./api.js";
 
+await initNav();
+await refreshSession();
 requireLogin();
 
 /** @type {import("./storage.js").CollectedCard[]} */
@@ -33,10 +35,10 @@ function sortCollection() {
 }
 
 function updateStats() {
-  const unique = collection.length;
-  const total = totalCardCount(collection);
+  let total = 0;
+  for (const c of collection) total += c.quantity || 1;
   el.statTotal.textContent = String(total);
-  el.statUnique.textContent = String(unique);
+  el.statUnique.textContent = String(collection.length);
 }
 
 function renderCollection() {
@@ -60,11 +62,21 @@ function renderCollection() {
   }
 }
 
-function init() {
-  initNav();
-  collection = loadCollection().cards;
-  updateStats();
-  renderCollection();
+async function load() {
+  try {
+    const data = await api("/api/inventory");
+    collection = data.cards || [];
+    if (data.stats) {
+      el.statTotal.textContent = String(data.stats.total ?? 0);
+      el.statUnique.textContent = String(data.stats.unique ?? 0);
+    } else {
+      updateStats();
+    }
+    renderCollection();
+  } catch {
+    el.collectionGrid.innerHTML =
+      '<p class="empty-hint">Could not load inventory. Are you logged in?</p>';
+  }
 }
 
-init();
+load();
