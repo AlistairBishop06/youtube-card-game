@@ -35,10 +35,10 @@
         <section class="panel panel--pull" aria-labelledby="pull-heading">
           <h2 id="pull-heading" class="panel__title">Booster</h2>
           <p class="panel__text">
-            Set your YouTube Data API key in <code>js/config.js</code>. Cards and sessions are stored in SQLite via the
-            Node server (<code>npm start</code>). Global discoveries are seeded from <code>data/discovered.json</code>
-            and extended in <code>data/gacha.db</code>. View cards on
-            <a href="inventory.html">Inventory</a> or <a href="account.html">Account</a>.
+            Set your YouTube Data API key in <code>js/config.js</code>. Discovered video IDs merge
+            <code>data/discovered.json</code> (ship a seed list) with IDs stored in this browser. New global
+            discoveries get a prismatic “first discovery” card. Open <a href="inventory.html">Inventory</a> for your
+            collection.
           </p>
           <div class="pull-row">
             <button type="button" class="btn btn--pull" id="pullBtn">Open pack</button>

@@ -18,37 +18,25 @@
 
       <header class="header">
         <h1 class="header__title">Log in</h1>
-        <p class="header__tagline">Use the account you created on this server.</p>
+        <p class="header__tagline">Choose a display name. Your collection is stored locally per name on this device.</p>
       </header>
 
       <main class="main">
         <section class="panel">
           <form id="loginForm" class="login-form">
-            <label class="login-form__label" for="username">Username</label>
+            <label class="login-form__label" for="username">Display name</label>
             <input
               class="login-form__input"
               id="username"
               name="username"
               type="text"
               autocomplete="username"
-              maxlength="32"
+              maxlength="48"
               required
             />
-            <label class="login-form__label" for="password">Password</label>
-            <input
-              class="login-form__input"
-              id="password"
-              name="password"
-              type="password"
-              autocomplete="current-password"
-              required
-            />
-            <button type="submit" class="btn btn--pull login-form__submit">Log in</button>
+            <button type="submit" class="btn btn--pull login-form__submit">Continue</button>
           </form>
           <p class="error login-form__error" id="loginError" role="alert" hidden></p>
-          <p class="panel__text" style="margin-top: 1rem">
-            No account? <a href="register.html">Register</a>
-          </p>
         </section>
       </main>
     </div>

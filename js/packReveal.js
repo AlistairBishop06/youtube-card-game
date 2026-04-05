@@ -7,6 +7,8 @@ const OPEN_THRESHOLD = 0.88;
  * @param {() => void} onDone
  */
 export function mountPackReveal(stageHost, cardEl, onDone) {
+  /* Fresh pull: drop stale open state or the pack is skipped and the card stays visible */
+  stageHost.classList.remove("reveal-stage--open", "reveal-stage--opening");
   stageHost.classList.add("reveal-stage");
   stageHost.innerHTML = "";
 

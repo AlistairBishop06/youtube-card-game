@@ -1,12 +1,15 @@
 import { pullRandomVideo } from "./youtube.js";
-import { refreshSession, requireLogin } from "./auth.js";
+import {
+  loadCollection,
+  saveCollection,
+  totalCardCount,
+} from "./storage.js";
+import { requireLogin } from "./auth.js";
 import { initNav } from "./nav.js";
+import { initDiscovered, registerDiscovery } from "./discovered.js";
 import { buildCardElement, wireModal } from "./cardUi.js";
 import { mountPackReveal } from "./packReveal.js";
-import { api } from "./api.js";
 
-await initNav();
-await refreshSession();
 requireLogin();
 
 /** @type {import("./storage.js").CollectedCard[]} */
@@ -34,21 +37,49 @@ function setLoading(on) {
   el.loading.setAttribute("aria-hidden", on ? "false" : "true");
 }
 
-function applyStats(stats) {
-  if (!stats) return;
-  el.statTotal.textContent = String(stats.total ?? 0);
-  el.statUnique.textContent = String(stats.unique ?? 0);
+function updateStats() {
+  const unique = collection.length;
+  const total = totalCardCount(collection);
+  el.statTotal.textContent = String(total);
+  el.statUnique.textContent = String(unique);
 }
 
-async function loadStats() {
-  try {
-    const data = await api("/api/inventory");
-    collection = data.cards || [];
-    applyStats(data.stats);
-  } catch {
-    el.statTotal.textContent = "0";
-    el.statUnique.textContent = "0";
+/**
+ * @param {Awaited<ReturnType<typeof pullRandomVideo>>} pulled
+ * @returns {{ card: import("./storage.js").CollectedCard, isDuplicate: boolean }}
+ */
+function upsertCard(pulled, firstDiscovery) {
+  const existing = collection.find((c) => c.videoId === pulled.videoId);
+  if (existing) {
+    existing.quantity = (existing.quantity || 1) + 1;
+    existing.rarity = pulled.rarity;
+    existing.viewCount = pulled.viewCount;
+    existing.likeCount = pulled.likeCount;
+    existing.commentCount = pulled.commentCount;
+    existing.publishedAt = pulled.publishedAt;
+    existing.durationSeconds = pulled.durationSeconds;
+    existing.title = pulled.title;
+    existing.channelTitle = pulled.channelTitle;
+    existing.thumbnailUrl = pulled.thumbnailUrl;
+    return { card: existing, isDuplicate: true };
   }
+  const card = {
+    videoId: pulled.videoId,
+    title: pulled.title,
+    channelTitle: pulled.channelTitle,
+    thumbnailUrl: pulled.thumbnailUrl,
+    viewCount: pulled.viewCount,
+    likeCount: pulled.likeCount,
+    commentCount: pulled.commentCount,
+    publishedAt: pulled.publishedAt,
+    durationSeconds: pulled.durationSeconds,
+    rarity: pulled.rarity,
+    pulledAt: new Date().toISOString(),
+    quantity: 1,
+    firstDiscovery,
+  };
+  collection.push(card);
+  return { card, isDuplicate: false };
 }
 
 const modal = wireModal({
@@ -62,29 +93,14 @@ async function handlePull() {
   el.pullBtn.disabled = true;
   setLoading(true);
   el.revealHost.innerHTML = "";
+  el.revealHost.classList.remove("reveal-stage--open", "reveal-stage--opening");
 
   try {
     const pulled = await pullRandomVideo();
-    const data = await api("/api/inventory/pull", {
-      method: "POST",
-      body: JSON.stringify({
-        videoId: pulled.videoId,
-        title: pulled.title,
-        channelTitle: pulled.channelTitle,
-        thumbnailUrl: pulled.thumbnailUrl,
-        viewCount: pulled.viewCount,
-        likeCount: pulled.likeCount,
-        commentCount: pulled.commentCount,
-        publishedAt: pulled.publishedAt,
-        durationSeconds: pulled.durationSeconds,
-        rarity: pulled.rarity,
-      }),
-    });
-
-    const card = data.card;
-    const isDuplicate = data.isDuplicate;
-    const firstDiscovery = data.firstDiscovery;
-    applyStats(data.stats);
+    const firstDiscovery = registerDiscovery(pulled.videoId);
+    const { card, isDuplicate } = upsertCard(pulled, firstDiscovery);
+    saveCollection(collection);
+    updateStats();
 
     setLoading(false);
 
@@ -107,16 +123,19 @@ async function handlePull() {
       el.revealHost.appendChild(dupNote);
     });
   } catch (e) {
-    if (String(e.message || e).includes("401")) {
-      setError("Session expired — log in again.");
-    } else {
-      setError(e instanceof Error ? e.message : String(e));
-    }
+    setError(e instanceof Error ? e.message : String(e));
   } finally {
     setLoading(false);
     el.pullBtn.disabled = false;
   }
 }
 
-await loadStats();
-el.pullBtn.addEventListener("click", handlePull);
+async function boot() {
+  initNav();
+  await initDiscovered();
+  collection = loadCollection().cards;
+  updateStats();
+  el.pullBtn.addEventListener("click", handlePull);
+}
+
+boot();

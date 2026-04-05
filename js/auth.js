@@ -1,43 +1,38 @@
-import { api } from "./api.js";
+const SESSION_KEY = "videoGachaSession";
 
-/** @type {{ id: number, username: string, createdAt?: string } | null} */
-let cachedUser = null;
-
+/**
+ * @returns {string | null}
+ */
 export function getCurrentUser() {
-  return cachedUser;
-}
-
-export function setCachedUser(user) {
-  cachedUser = user;
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const j = JSON.parse(raw);
+    const u = j?.username;
+    return typeof u === "string" && u.trim() ? u.trim() : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
- * @returns {Promise<{ id: number, username: string, createdAt?: string } | null>}
+ * @param {string} username
  */
-export async function refreshSession() {
-  try {
-    const data = await api("/api/auth/me");
-    cachedUser = data.user || null;
-  } catch {
-    cachedUser = null;
-  }
-  return cachedUser;
+export function setSession(username) {
+  const u = String(username || "").trim();
+  if (!u) return;
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ username: u }));
 }
 
-export async function logout() {
-  try {
-    await api("/api/auth/logout", { method: "POST", body: "{}" });
-  } catch {
-    /* still clear local */
-  }
-  cachedUser = null;
+export function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
 }
 
 /**
  * @param {string} [loginPath]
  */
 export function requireLogin(loginPath = "login.html") {
-  if (cachedUser) return;
+  if (getCurrentUser()) return;
   const next = encodeURIComponent(
     `${location.pathname}${location.search}${location.hash}`
   );

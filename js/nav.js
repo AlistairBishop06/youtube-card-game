@@ -1,4 +1,4 @@
-import { getCurrentUser, logout, refreshSession } from "./auth.js";
+import { getCurrentUser, clearSession } from "./auth.js";
 
 function escapeHtml(s) {
   const d = document.createElement("div");
@@ -6,9 +6,7 @@ function escapeHtml(s) {
   return d.innerHTML;
 }
 
-export async function initNav() {
-  await refreshSession();
-
+export function initNav() {
   const el = document.getElementById("siteNav");
   if (!el) return;
 
@@ -25,21 +23,18 @@ export async function initNav() {
       ${link("index.html", "Home")}
       ${link("pull.html", "Pull")}
       ${link("inventory.html", "Inventory")}
+      <span class="site-nav__spacer"></span>
       ${
         u
-          ? `${link("account.html", "Account")}
-      <span class="site-nav__spacer"></span>
-      <span class="site-nav__user">${escapeHtml(u.username)}</span>
-      <button type="button" class="btn btn--ghost site-nav__btn" id="navLogout">Log out</button>`
-          : `<span class="site-nav__spacer"></span>
-      <a class="btn btn--ghost site-nav__btn" href="login.html">Log in</a>
-      <a class="btn btn--ghost site-nav__btn" href="register.html">Register</a>`
+          ? `<span class="site-nav__user">${escapeHtml(u)}</span>
+             <button type="button" class="btn btn--ghost site-nav__btn" id="navLogout">Log out</button>`
+          : `<a class="btn btn--ghost site-nav__btn" href="login.html">Log in</a>`
       }
     </div>
   `;
 
-  document.getElementById("navLogout")?.addEventListener("click", async () => {
-    await logout();
+  document.getElementById("navLogout")?.addEventListener("click", () => {
+    clearSession();
     window.location.href = "login.html";
   });
 }

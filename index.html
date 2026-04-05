@@ -25,16 +25,14 @@
         <section class="panel">
           <h2 class="panel__title">Play</h2>
           <p class="panel__text">
-            Requires <strong>Node.js 22.13+</strong> (uses built-in <code>node:sqlite</code>). Run
-            <code>npm install</code> then <code>npm start</code> and open <code>http://localhost:3000</code>.
-            <a href="register.html">Register</a> an account (inventory lives in SQLite on the server).
-            Set your YouTube API key in <code>js/config.js</code>.
+            <a href="login.html">Log in</a> with a display name, then open boosters on the Pull page. Your collection
+            lives on the Inventory page. Serve this folder over HTTP so modules and <code>data/discovered.json</code>
+            load correctly.
           </p>
           <div class="home-actions">
-            <a class="btn btn--pull" href="register.html">Register</a>
-            <a class="btn btn--ghost" href="login.html">Log in</a>
-            <a class="btn btn--ghost" href="pull.html">Pull</a>
+            <a class="btn btn--pull" href="pull.html">Go to Pull</a>
             <a class="btn btn--ghost" href="inventory.html">Inventory</a>
+            <a class="btn btn--ghost" href="login.html">Log in</a>
           </div>
         </section>
       </main>

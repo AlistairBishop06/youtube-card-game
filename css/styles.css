@@ -287,34 +287,6 @@ code {
   background: rgba(255, 255, 255, 0.06);
 }
 
-.btn--danger {
-  background: #7f1d1d;
-  border-color: #991b1b;
-  color: #fecaca;
-}
-
-.btn--danger:hover {
-  background: #991b1b;
-}
-
-.panel--danger {
-  border-color: rgba(248, 113, 113, 0.35);
-}
-
-.account-main {
-  gap: 1.25rem;
-}
-
-.account-form {
-  max-width: 360px;
-}
-
-.ok-msg {
-  margin: 0.5rem 0 0;
-  font-size: 0.9rem;
-  color: var(--accent);
-}
-
 /* --- Loading --- */
 /* `hidden` must win over display:flex (otherwise spinner stays visible forever) */
 .loading[hidden],
@@ -388,6 +360,8 @@ code {
 .reveal-stage__inner {
   position: relative;
   width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
 }
 
 .reveal-stage .gacha-card {
@@ -399,11 +373,11 @@ code {
   color: var(--accent);
 }
 
-/* Card slides up from inside the pack */
+/* Card hidden until pack opens, then slides up */
 .gacha-card__emerge {
   transition:
     transform 0.92s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.55s ease;
+    opacity 0.65s ease 0.08s;
 }
 
 .gacha-card__emerge--static {
@@ -411,13 +385,21 @@ code {
 }
 
 .reveal-stage:not(.reveal-stage--open) .gacha-card__emerge {
-  transform: translateY(58%) scale(0.97);
-  opacity: 0.12;
+  transform: translateY(52%) scale(0.98);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .reveal-stage--open .gacha-card__emerge {
   transform: translateY(0) scale(1);
   opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    transform 0.92s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.55s ease 0.12s,
+    visibility 0s linear 0;
 }
 
 /* Full-size booster overlay (same box as card) */
@@ -431,7 +413,9 @@ code {
   border-radius: 14px;
   overflow: hidden;
   border: 3px solid #475569;
-  background: linear-gradient(
+  isolation: isolate;
+  background-color: #0f172a;
+  background-image: linear-gradient(
     165deg,
     #1a1528 0%,
     #0f172a 30%,
@@ -446,21 +430,19 @@ code {
 
 .pack-overlay__foil {
   position: absolute;
-  inset: -35%;
+  inset: 0;
+  z-index: 0;
   background: linear-gradient(
     125deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.04) 30%,
-    rgba(110, 231, 183, 0.14) 45%,
-    rgba(167, 139, 250, 0.12) 52%,
-    rgba(56, 189, 248, 0.1) 58%,
-    transparent 100%
+    rgba(255, 255, 255, 0.06) 40%,
+    rgba(255, 255, 255, 0.03) 50%,
+    transparent 60%
   );
-  background-size: 220% 220%;
-  animation: packFoil 6.5s ease-in-out infinite;
+  background-size: 200% 200%;
+  animation: packFoil 8s ease-in-out infinite;
   pointer-events: none;
-  mix-blend-mode: screen;
-  opacity: 0.75;
+  opacity: 0.55;
 }
 
 @keyframes packFoil {
@@ -474,6 +456,8 @@ code {
 }
 
 .pack-overlay__crimp {
+  position: relative;
+  z-index: 1;
   height: 10px;
   flex-shrink: 0;
   background: linear-gradient(180deg, #0b1220 0%, #1e293b 50%, #0b1220 100%);
@@ -489,6 +473,7 @@ code {
 
 .pack-overlay__body {
   position: relative;
+  z-index: 1;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -496,11 +481,12 @@ code {
   justify-content: center;
   padding: 0.5rem 0.65rem;
   min-height: 0;
+  background: inherit;
 }
 
 .pack-overlay__brand {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 0.68rem;
@@ -550,6 +536,8 @@ code {
 }
 
 .pack-overlay__tear-wrap {
+  position: relative;
+  z-index: 2;
   flex-shrink: 0;
   padding: 0.35rem 0.55rem 0.45rem;
   background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
@@ -717,6 +705,19 @@ code {
     0 0 34px rgba(251, 191, 36, 0.32);
 }
 
+/* Beat rarity surface rules — subtle foil frame + sheen */
+.gacha-card--first-discovery.rarity-common .gacha-card__surface,
+.gacha-card--first-discovery.rarity-rare .gacha-card__surface,
+.gacha-card--first-discovery.rarity-epic .gacha-card__surface,
+.gacha-card--first-discovery.rarity-legendary .gacha-card__surface {
+  position: relative;
+  border-color: rgba(226, 232, 240, 0.22);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+    0 18px 40px rgba(0, 0, 0, 0.38),
+    0 0 24px rgba(148, 163, 184, 0.12);
+}
+
 .gacha-card__head {
   padding: 0.65rem 0.75rem 0.55rem;
   position: relative;
@@ -775,72 +776,50 @@ code {
 }
 
 .gacha-card__first {
-  font-size: 0.55rem;
-  font-weight: 800;
+  font-size: 0.52rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.09em;
-  padding: 0.2rem 0.4rem;
+  letter-spacing: 0.08em;
+  padding: 0.18rem 0.38rem;
   border-radius: 4px;
-  color: #fefce8;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: linear-gradient(
-    125deg,
-    rgba(192, 132, 252, 0.45),
-    rgba(56, 189, 248, 0.4),
-    rgba(52, 211, 153, 0.45)
-  );
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
-  animation: firstPulse 2.4s ease-in-out infinite;
+  color: rgba(248, 250, 252, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(30, 41, 59, 0.85);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-@keyframes firstPulse {
-  0%,
-  100% {
-    filter: brightness(1);
-  }
-  50% {
-    filter: brightness(1.2);
-  }
-}
-
-.gacha-card--first-discovery {
-  position: relative;
-  z-index: 0;
-  isolation: isolate;
-}
-
-.gacha-card--first-discovery::before {
+/* Subtle moving sheen on surface (game-style foil) */
+.gacha-card--first-discovery .gacha-card__surface::after {
   content: "";
   position: absolute;
-  inset: -4px;
-  border-radius: 17px;
-  z-index: -1;
-  background: conic-gradient(
-    from 0deg,
-    #e879f9,
-    #38bdf8,
-    #4ade80,
-    #fbbf24,
-    #fb7185,
-    #a78bfa,
-    #e879f9
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 6;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(255, 255, 255, 0.07) 48%,
+    rgba(210, 230, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.06) 52%,
+    transparent 62%,
+    transparent 100%
   );
-  animation: prismaSpin 5s linear infinite;
+  background-size: 280% 100%;
+  animation: cardSheen 9s ease-in-out infinite;
+  mix-blend-mode: soft-light;
+  opacity: 0.65;
 }
 
-@keyframes prismaSpin {
-  to {
-    transform: rotate(360deg);
+@keyframes cardSheen {
+  0%,
+  100% {
+    background-position: 85% 50%;
   }
-}
-
-.gacha-card--first-discovery .gacha-card__surface {
-  border-color: rgba(255, 255, 255, 0.38);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.12) inset,
-    0 22px 48px rgba(0, 0, 0, 0.45),
-    0 0 48px rgba(167, 139, 250, 0.38),
-    0 0 72px rgba(56, 189, 248, 0.22);
+  50% {
+    background-position: 15% 50%;
+  }
 }
 
 .gacha-card.rarity-common .gacha-card__badge {
@@ -1077,19 +1056,14 @@ code {
 
 .modal__first-discovery {
   margin: 0 0 0.5rem;
-  padding: 0.4rem 0.55rem;
+  padding: 0.35rem 0.5rem;
   border-radius: 8px;
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 600;
   text-align: center;
-  color: #fefce8;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  background: linear-gradient(
-    120deg,
-    rgba(192, 132, 252, 0.35),
-    rgba(56, 189, 248, 0.3),
-    rgba(52, 211, 153, 0.35)
-  );
+  color: var(--text);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(30, 41, 59, 0.55);
 }
 
 .modal__views {
