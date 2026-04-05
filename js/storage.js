@@ -1,4 +1,6 @@
-const STORAGE_KEY = "videoGachaCollection_v2";
+import { getCurrentUser } from "./auth.js";
+
+const LEGACY_KEY = "videoGachaCollection_v2";
 
 /**
  * @typedef {Object} CollectedCard
@@ -14,7 +16,15 @@ const STORAGE_KEY = "videoGachaCollection_v2";
  * @property {"common"|"rare"|"epic"|"legendary"} rarity
  * @property {string} pulledAt ISO timestamp of first pull
  * @property {number} quantity stack count (duplicates)
+ * @property {boolean} [firstDiscovery] first time this video id entered the global registry when you pulled
  */
+
+function collectionKey() {
+  const u = getCurrentUser();
+  if (!u) return LEGACY_KEY;
+  const safe = u.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 48);
+  return `videoGachaCollection_u_${safe}`;
+}
 
 function tryMigrateV1() {
   try {
@@ -23,7 +33,7 @@ function tryMigrateV1() {
     const data = JSON.parse(old);
     const cards = (data.cards || []).map(normalizeCard);
     if (cards.length) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ cards }));
+      localStorage.setItem(LEGACY_KEY, JSON.stringify({ cards }));
       localStorage.removeItem("videoGachaCollection_v1");
     }
     return cards;
@@ -36,11 +46,15 @@ function tryMigrateV1() {
  * @returns {{ cards: CollectedCard[] }}
  */
 export function loadCollection() {
+  const key = collectionKey();
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(key);
     if (!raw) {
-      const migrated = tryMigrateV1();
-      return { cards: migrated };
+      if (key === LEGACY_KEY) {
+        const migrated = tryMigrateV1();
+        return { cards: migrated };
+      }
+      return { cards: [] };
     }
     const data = JSON.parse(raw);
     if (!data.cards || !Array.isArray(data.cards)) return { cards: [] };
@@ -68,6 +82,7 @@ export function normalizeCard(c) {
     rarity: c.rarity || "common",
     pulledAt: c.pulledAt || new Date().toISOString(),
     quantity: Math.max(1, Number(c.quantity) || 1),
+    firstDiscovery: Boolean(c.firstDiscovery),
   };
 }
 
@@ -75,11 +90,10 @@ export function normalizeCard(c) {
  * @param {CollectedCard[]} cards
  */
 export function saveCollection(cards) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ cards }));
+  localStorage.setItem(collectionKey(), JSON.stringify({ cards }));
 }
 
 /**
- * Sum of all quantities (total pulls stored).
  * @param {CollectedCard[]} cards
  */
 export function totalCardCount(cards) {

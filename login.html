@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Log in — Video Gacha</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Outfit:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="page page--narrow">
+      <nav id="siteNav" class="site-nav" aria-label="Main"></nav>
+
+      <header class="header">
+        <h1 class="header__title">Log in</h1>
+        <p class="header__tagline">Choose a display name. Your collection is stored locally per name on this device.</p>
+      </header>
+
+      <main class="main">
+        <section class="panel">
+          <form id="loginForm" class="login-form">
+            <label class="login-form__label" for="username">Display name</label>
+            <input
+              class="login-form__input"
+              id="username"
+              name="username"
+              type="text"
+              autocomplete="username"
+              maxlength="48"
+              required
+            />
+            <button type="submit" class="btn btn--pull login-form__submit">Continue</button>
+          </form>
+          <p class="error login-form__error" id="loginError" role="alert" hidden></p>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="js/app-login.js"></script>
+  </body>
+</html>

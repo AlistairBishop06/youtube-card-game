@@ -14,57 +14,30 @@
   </head>
   <body>
     <div class="page">
+      <nav id="siteNav" class="site-nav" aria-label="Main"></nav>
+
       <header class="header">
         <h1 class="header__title">Video Gacha</h1>
-        <p class="header__tagline">Pull random YouTube videos and collect them as cards.</p>
-        <dl class="stats" aria-live="polite">
-          <div class="stats__item">
-            <dt>Total cards</dt>
-            <dd id="statTotal">0</dd>
-          </div>
-          <div class="stats__item">
-            <dt>Unique videos</dt>
-            <dd id="statUnique">0</dd>
-          </div>
-        </dl>
+        <p class="header__tagline">Pull random YouTube videos, collect trading cards, chase first discoveries.</p>
       </header>
 
       <main class="main">
-        <section class="panel panel--pull" id="pullSection" aria-labelledby="pull-heading">
-          <h2 id="pull-heading" class="panel__title">Pull</h2>
+        <section class="panel">
+          <h2 class="panel__title">Play</h2>
           <p class="panel__text">
-            Uses the YouTube Data API. Set your browser API key in
-            <code>js/config.js</code>, then serve this folder over HTTP (not <code>file://</code>).
-            After a pull, slice open the pack to reveal your card.
+            <a href="login.html">Log in</a> with a display name, then open boosters on the Pull page. Your collection
+            lives on the Inventory page. Serve this folder over HTTP so modules and <code>data/discovered.json</code>
+            load correctly.
           </p>
-          <div class="pull-row">
-            <button type="button" class="btn btn--pull" id="pullBtn">Open pack</button>
-            <div class="loading" id="loading" hidden aria-hidden="true">
-              <span class="loading__spinner" aria-hidden="true"></span>
-              <span class="loading__text">Drawing…</span>
-            </div>
+          <div class="home-actions">
+            <a class="btn btn--pull" href="pull.html">Go to Pull</a>
+            <a class="btn btn--ghost" href="inventory.html">Inventory</a>
+            <a class="btn btn--ghost" href="login.html">Log in</a>
           </div>
-          <p class="error" id="errorBox" role="alert" hidden></p>
-          <div class="reveal-host" id="revealHost"></div>
-        </section>
-
-        <section class="panel panel--collection" aria-labelledby="collection-heading">
-          <h2 id="collection-heading" class="panel__title">Collection</h2>
-          <div class="collection-grid" id="collectionGrid"></div>
         </section>
       </main>
     </div>
 
-    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Card details" hidden>
-      <div class="modal__backdrop"></div>
-      <div class="modal__dialog">
-        <button type="button" class="modal__close" id="modalClose" aria-label="Close">
-          ×
-        </button>
-        <div class="modal__body" id="modalBody"></div>
-      </div>
-    </div>
-
-    <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/app-index.js"></script>
   </body>
 </html>
